@@ -1,0 +1,49 @@
+#include <iostream>
+using namespace std;
+
+enum class Zone {
+    Inner, Middle, Outer
+};
+
+constexpr long long INNER_FARE = 1000;
+constexpr long long MIDDLE_FARE = 2000;
+constexpr long long OUTER_FARE = 3000;
+
+constexpr int PEAK_SURCHARGE = 20;
+constexpr long long MIN_BALANCE = 5000;
+
+long long calculateFare(Zone z) {
+
+    switch (z) {
+        case Zone::Inner:
+            return INNER_FARE;
+
+        case Zone::Middle:
+            return MIDDLE_FARE;
+
+        case Zone::Outer:
+            return OUTER_FARE;
+    }
+
+    return 0;
+}
+
+int main() {
+
+    cout << "Inner Fare: " << calculateFare(Zone::Inner)
+         << " paise" << endl;
+
+    cout << "Middle Fare: " << calculateFare(Zone::Middle)
+         << " paise" << endl;
+
+    cout << "Outer Fare: " << calculateFare(Zone::Outer)
+         << " paise" << endl;
+
+    cout << "Peak Surcharge: "
+         << PEAK_SURCHARGE << "%" << endl;
+
+    cout << "Minimum Balance: "
+         << MIN_BALANCE << " paise" << endl;
+
+    return 0;
+}
