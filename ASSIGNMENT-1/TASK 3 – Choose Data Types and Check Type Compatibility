@@ -1,0 +1,55 @@
+#include <iostream>
+#include <climits>
+using namespace std;
+
+int main() {
+
+    bool peak = true;
+    char zone = 'O';
+    int hour = 9;
+
+    long long balance = 1000000;
+    unsigned int journeys = 3000000;
+
+    float temperature = 28.5;
+    double fare = 30.50;
+
+    auto totalFare = 3000LL;
+
+    cout << "Data Type Sizes" << endl;
+
+    cout << "bool: " << sizeof(peak) << " bytes" << endl;
+    cout << "char: " << sizeof(zone) << " bytes" << endl;
+    cout << "int: " << sizeof(hour) << " bytes" << endl;
+
+    cout << "long long: "
+         << sizeof(balance) << " bytes" << endl;
+
+    cout << "unsigned int: "
+         << sizeof(journeys) << " bytes" << endl;
+
+    cout << "float: "
+         << sizeof(temperature) << " bytes" << endl;
+
+    cout << "double: "
+         << sizeof(fare) << " bytes" << endl;
+
+    cout << "auto: "
+         << sizeof(totalFare) << " bytes" << endl;
+
+    cout << "\nInteger Limits" << endl;
+
+    cout << "INT_MAX: " << INT_MAX << endl;
+    cout << "INT_MIN: " << INT_MIN << endl;
+
+    cout << "Long Long Maximum: "
+         << LLONG_MAX << endl;
+
+    long long dailyCollection =
+        3000000LL * 3600LL;
+
+    cout << "\nDaily Collection: Rs "
+         << dailyCollection / 100 << endl;
+
+    return 0;
+}
