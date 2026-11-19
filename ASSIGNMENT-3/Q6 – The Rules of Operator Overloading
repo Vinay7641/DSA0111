@@ -1,0 +1,121 @@
+#include <iostream>
+#include <cstring>
+using namespace std;
+
+class Text {
+private:
+    char* data;
+
+public:
+    Text(const char* str = "") {
+        int len = strlen(str);
+        data = new char[len + 1];
+        strcpy(data, str);
+    }
+
+    Text(const Text& other) {
+        int len = strlen(other.data);
+        data = new char[len + 1];
+        strcpy(data, other.data);
+    }
+
+    Text& operator=(const Text& other) {
+
+        if (this != &other) {
+
+            char* temp = new char[strlen(other.data) + 1];
+
+            strcpy(temp, other.data);
+
+            delete[] data;
+
+            data = temp;
+        }
+
+        return *this;
+    }
+
+    Text operator+(const Text& other) const {
+
+        int len1 = strlen(data);
+        int len2 = strlen(other.data);
+
+        char* temp = new char[len1 + len2 + 1];
+
+        strcpy(temp, data);
+        strcat(temp, other.data);
+
+        Text result(temp);
+
+        delete[] temp;
+
+        return result;
+    }
+
+    bool operator==(const Text& other) const {
+        return strcmp(data, other.data) == 0;
+    }
+
+    bool operator!=(const Text& other) const {
+        return !(*this == other);
+    }
+
+    Text& operator+=(const Text& other) {
+
+        Text temp = *this + other;
+
+        *this = temp;
+
+        return *this;
+    }
+
+    friend ostream& operator<<(ostream& out, const Text& t) {
+        out << t.data;
+        return out;
+    }
+
+    ~Text() {
+        delete[] data;
+    }
+};
+
+int main() {
+
+    Text a("Hello");
+
+    Text b("World");
+
+    Text c = a + b;
+
+    cout << "Text A: " << a << endl;
+
+    cout << "Text B: " << b << endl;
+
+    cout << "Concatenation: " << c << endl;
+
+    cout << boolalpha;
+
+    cout << "Equality: "
+         << (a == b) << endl;
+
+    cout << "Inequality: "
+         << (a != b) << endl;
+
+    Text d("Programming");
+
+    d = d;
+
+    cout << "Self Assignment: "
+         << d << endl;
+
+    Text empty;
+
+    cout << "Empty Text: [" << empty << "]" << endl;
+
+    Text longText("Object Oriented Programming");
+
+    cout << "Long Text: "
+         << longText << endl;
+
+    return 0;
+}
