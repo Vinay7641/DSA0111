@@ -1,0 +1,124 @@
+#include <iostream>
+using namespace std;
+
+class Auditorium {
+private:
+    int rows;
+    int seats;
+    char** seatMap;
+    int booked;
+
+public:
+    Auditorium(int r, int s)
+        : rows(r > 0 ? r : 0),
+          seats(s > 0 ? s : 0),
+          seatMap(nullptr),
+          booked(0) {
+
+        if (rows > 0 && seats > 0) {
+
+            seatMap = new char*[rows];
+
+            for (int i = 0; i < rows; i++) {
+                seatMap[i] = new char[seats];
+
+                for (int j = 0; j < seats; j++) {
+                    seatMap[i][j] = 'E';
+                }
+            }
+        }
+
+        cout << "Auditorium Created" << endl;
+    }
+
+    bool bookSeat(int r, int s) {
+
+        if (r < 0 || r >= rows ||
+            s < 0 || s >= seats) {
+            return false;
+        }
+
+        if (seatMap[r][s] == 'B') {
+            return false;
+        }
+
+        seatMap[r][s] = 'B';
+        booked++;
+
+        return true;
+    }
+
+    bool cancelSeat(int r, int s) {
+
+        if (r < 0 || r >= rows ||
+            s < 0 || s >= seats) {
+            return false;
+        }
+
+        if (seatMap[r][s] == 'E') {
+            return false;
+        }
+
+        seatMap[r][s] = 'E';
+        booked--;
+
+        return true;
+    }
+
+    void display() const {
+
+        cout << "Seat Map:" << endl;
+
+        for (int i = 0; i < rows; i++) {
+
+            for (int j = 0; j < seats; j++) {
+                cout << seatMap[i][j] << " ";
+            }
+
+            cout << endl;
+        }
+    }
+
+    ~Auditorium() {
+
+        for (int i = 0; i < rows; i++) {
+            delete[] seatMap[i];
+        }
+
+        delete[] seatMap;
+
+        cout << "Auditorium Closed" << endl;
+        cout << "Total Booked Seats: " << booked << endl;
+    }
+};
+
+int main() {
+
+    Auditorium a1(3, 4);
+
+    a1.bookSeat(0, 0);
+    a1.bookSeat(1, 2);
+    a1.bookSeat(2, 1);
+
+    a1.cancelSeat(1, 2);
+
+    a1.display();
+
+    cout << "\nDynamic Auditorium" << endl;
+
+    Auditorium* a2 = new Auditorium(2, 3);
+
+    a2->bookSeat(0, 1);
+    a2->display();
+
+    delete a2;
+
+    cout << "\nBlock Scope Auditorium" << endl;
+
+    {
+        Auditorium a3(1, 2);
+        a3.bookSeat(0, 0);
+    }
+
+    return 0;
+}
