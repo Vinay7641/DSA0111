@@ -1,0 +1,117 @@
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+class Address {
+    string city;
+    int pin;
+
+public:
+    Address(string c, int p) : city(c), pin(p) {
+        cout << "Address Constructor\n";
+    }
+
+    ~Address() {
+        cout << "Address Destructor\n";
+    }
+};
+
+class Course {
+    string courseName;
+
+public:
+    Course(string c) : courseName(c) {
+        cout << "Course Constructor\n";
+    }
+
+    ~Course() {
+        cout << "Course Destructor\n";
+    }
+};
+
+class Person {
+protected:
+    string name;
+    int age;
+    Address address;
+
+public:
+    Person(string n, int a, string city, int pin)
+        : name(n), age(a), address(city, pin) {
+        cout << "Person Constructor\n";
+    }
+
+    ~Person() {
+        cout << "Person Destructor\n";
+    }
+};
+
+class Student : virtual public Person {
+    Course course;
+
+public:
+    Student(string n, int a, string city, int pin, string c)
+        : Person(n, a, city, pin), course(c) {
+        cout << "Student Constructor\n";
+    }
+
+    ~Student() {
+        cout << "Student Destructor\n";
+    }
+};
+
+class Staff : virtual public Person {
+    string department;
+    double salary;
+
+public:
+    Staff(string n, int a, string city, int pin,
+          string d, double s)
+        : Person(n, a, city, pin),
+          department(d), salary(s) {
+        cout << "Staff Constructor\n";
+    }
+
+    ~Staff() {
+        cout << "Staff Destructor\n";
+    }
+};
+
+class TeachingAssistant : public Student, public Staff {
+public:
+    TeachingAssistant(string n, int a, string city, int pin,
+                      string c, string d, double s)
+        : Person(n, a, city, pin),
+          Student(n, a, city, pin, c),
+          Staff(n, a, city, pin, d, s) {
+        cout << "TeachingAssistant Constructor\n";
+    }
+
+    ~TeachingAssistant() {
+        cout << "TeachingAssistant Destructor\n";
+    }
+};
+
+int main() {
+    cout << "STUDENT OBJECT\n";
+    {
+        Student s("Kavya", 19, "Salem", 636001, "MCA");
+    }
+
+    cout << "\nSTAFF OBJECT\n";
+    {
+        Staff s("Arun", 35, "Chennai", 600001,
+                "Computer Science", 50000);
+    }
+
+    cout << "\nTEACHING ASSISTANT OBJECT\n";
+    {
+        TeachingAssistant ta(
+            "Priya", 24, "Chennai", 600001,
+            "M.Tech", "CSE", 25000
+        );
+    }
+
+    return 0;
+}
