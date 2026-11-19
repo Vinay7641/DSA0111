@@ -1,0 +1,100 @@
+#include <iostream>
+#include <array>
+using namespace std;
+
+enum class Zone {
+    Inner, Middle, Outer
+};
+
+constexpr array<long long, 3> FARE = {
+    1000, 2000, 3000
+};
+
+constexpr int PEAK_PERCENT = 20;
+
+constexpr long long MIN_BALANCE = 5000;
+
+class SmartCard {
+
+private:
+    long long balance;
+
+public:
+
+    SmartCard(long long amount) {
+        balance = amount;
+    }
+
+    bool canTravel(long long fare) {
+
+        return fare >= 0 &&
+               balance >= fare &&
+               balance - fare >= MIN_BALANCE;
+    }
+
+    bool deduct(long long fare) {
+
+        if (canTravel(fare)) {
+            balance -= fare;
+            return true;
+        }
+
+        return false;
+    }
+
+    long long getBalance() {
+        return balance;
+    }
+};
+
+long long calculateFare(Zone z, bool peak) {
+
+    int index = static_cast<int>(z);
+
+    if (index < 0 || index >= static_cast<int>(FARE.size())) {
+        return -1;
+    }
+
+    long long fare = FARE[index];
+
+    if (peak) {
+        fare += fare * PEAK_PERCENT / 100;
+    }
+
+    return fare;
+}
+
+int main() {
+
+    SmartCard card(20000);
+
+    Zone zones[] = {
+        Zone::Inner,
+        Zone::Middle,
+        Zone::Outer
+    };
+
+    bool peak[] = {
+        false, true, false
+    };
+
+    for (int i = 0; i < 3; i++) {
+
+        long long fare =
+            calculateFare(zones[i], peak[i]);
+
+        cout << "Fare: " << fare << " paise ";
+
+        if (card.deduct(fare)) {
+            cout << "Accepted";
+        } else {
+            cout << "Denied";
+        }
+
+        cout << " | Balance: "
+             << card.getBalance()
+             << " paise" << endl;
+    }
+
+    return 0;
+}
