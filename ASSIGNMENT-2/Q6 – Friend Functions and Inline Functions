@@ -1,0 +1,98 @@
+#include <iostream>
+using namespace std;
+
+class Time {
+
+private:
+    int h, m;
+
+public:
+
+    Time(int hh, int mm) : h(hh), m(mm) {}
+
+    // Friend function declarations
+    friend int minutesBetween(const Time& a, const Time& b);
+
+    friend bool earlier(const Time& a, const Time& b);
+
+    // Inline member function
+    inline int totalMinutes() const {
+        return h * 60 + m;
+    }
+};
+
+// Friend function to calculate time difference
+int minutesBetween(const Time& a, const Time& b) {
+
+    int time1 = a.h * 60 + a.m;
+
+    int time2 = b.h * 60 + b.m;
+
+    int difference = time1 - time2;
+
+    if (difference < 0) {
+        difference = -difference;
+    }
+
+    return difference;
+}
+
+// Friend function to compare times
+bool earlier(const Time& a, const Time& b) {
+
+    if (a.h < b.h) {
+        return true;
+    }
+
+    if (a.h == b.h && a.m < b.m) {
+        return true;
+    }
+
+    return false;
+}
+
+int main() {
+
+    Time departure(9, 45);
+
+    Time arrival(13, 10);
+
+    cout << minutesBetween(departure, arrival)
+         << " "
+         << boolalpha
+         << earlier(arrival, departure)
+         << endl;
+
+    // Same time test
+
+    Time t1(12, 30);
+
+    Time t2(12, 30);
+
+    cout << "Same Time Difference: "
+         << minutesBetween(t1, t2) << endl;
+
+    cout << "Same Time Earlier: "
+         << earlier(t1, t2) << endl;
+
+    // Times on either side of noon
+
+    Time morning(11, 45);
+
+    Time afternoon(12, 15);
+
+    cout << "Difference: "
+         << minutesBetween(morning, afternoon)
+         << endl;
+
+    cout << "Morning Earlier: "
+         << earlier(morning, afternoon)
+         << endl;
+
+    // Inline function
+
+    cout << "Departure Minutes: "
+         << departure.totalMinutes() << endl;
+
+    return 0;
+}
