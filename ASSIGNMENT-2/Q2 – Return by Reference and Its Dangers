@@ -1,0 +1,88 @@
+#include <iostream>
+using namespace std;
+
+// Return reference to highest mark
+int& highestMark(int marks[], int n) {
+
+    int maxIndex = 0;
+
+    for (int i = 1; i < n; i++) {
+
+        if (marks[i] > marks[maxIndex]) {
+            maxIndex = i;
+        }
+    }
+
+    return marks[maxIndex];
+}
+
+// Return a copy
+int highestMarkCopy(int marks[], int n) {
+
+    int maximum = marks[0];
+
+    for (int i = 1; i < n; i++) {
+
+        if (marks[i] > maximum) {
+            maximum = marks[i];
+        }
+    }
+
+    return maximum;
+}
+
+// Return const reference
+const int& highestMarkConst(const int marks[], int n) {
+
+    int maxIndex = 0;
+
+    for (int i = 1; i < n; i++) {
+
+        if (marks[i] > marks[maxIndex]) {
+            maxIndex = i;
+        }
+    }
+
+    return marks[maxIndex];
+}
+
+// Incorrect function: dangling reference
+int& wrongFunction() {
+
+    int x = 100;
+
+    return x;
+}
+
+int main() {
+
+    int marks[] = {75, 89, 92, 85, 78};
+
+    int n = 5;
+
+    cout << "Original Marks: ";
+
+    for (int i = 0; i < n; i++) {
+        cout << marks[i] << " ";
+    }
+
+    cout << endl;
+
+    highestMark(marks, n) += 2;
+
+    cout << "After Moderation: ";
+
+    for (int i = 0; i < n; i++) {
+        cout << marks[i] << " ";
+    }
+
+    cout << endl;
+
+    cout << "Highest Mark: "
+         << highestMarkCopy(marks, n) << endl;
+
+    cout << "Const Reference Result: "
+         << highestMarkConst(marks, n) << endl;
+
+    return 0;
+}
