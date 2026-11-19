@@ -1,0 +1,69 @@
+
+#include <iostream>
+using namespace std;
+
+struct PersonV {
+    int id = 101;
+
+    PersonV() {
+        cout << "PersonV ";
+    }
+};
+
+struct StudentV : virtual PersonV {
+    StudentV() {
+        cout << "StudentV ";
+    }
+};
+
+struct StaffV : virtual PersonV {
+    StaffV() {
+        cout << "StaffV ";
+    }
+};
+
+struct TAV : StudentV, StaffV {
+    TAV() {
+        cout << "TAV ";
+    }
+};
+
+struct PersonN {
+    int id = 101;
+
+    PersonN() {
+        cout << "PersonN ";
+    }
+};
+
+struct StudentN : PersonN {
+    StudentN() {
+        cout << "StudentN ";
+    }
+};
+
+struct StaffN : PersonN {
+    StaffN() {
+        cout << "StaffN ";
+    }
+};
+
+struct TAN : StudentN, StaffN {
+    TAN() {
+        cout << "TAN ";
+    }
+};
+
+int main() {
+    cout << "Virtual Inheritance:\n";
+    TAV a;
+
+    cout << "\nSize: " << sizeof(a) << endl;
+
+    cout << "\nNon-Virtual Inheritance:\n";
+    TAN b;
+
+    cout << "\nSize: " << sizeof(b) << endl;
+
+    return 0;
+}
