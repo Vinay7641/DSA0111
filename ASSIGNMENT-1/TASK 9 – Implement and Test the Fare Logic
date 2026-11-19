@@ -1,0 +1,142 @@
+#include <iostream>
+#include <vector>
+#include <iomanip>
+using namespace std;
+
+enum class Zone {
+    Inner, Middle, Outer
+};
+
+struct Test {
+    string name;
+    Zone zone;
+    int hour;
+    long long balance;
+    long long expectedFare;
+    bool expectedAllowed;
+};
+
+long long calculateFare(Zone z, int hour) {
+
+    long long f;
+
+    switch (z) {
+
+        case Zone::Inner:
+            f = 1000;
+            break;
+
+        case Zone::Middle:
+            f = 2000;
+            break;
+
+        case Zone::Outer:
+            f = 3000;
+            break;
+
+        default:
+            return -1;
+    }
+
+    bool peak =
+        (hour >= 8 && hour < 10) ||
+        (hour >= 17 && hour < 20);
+
+    if (peak) {
+        f += f * 20 / 100;
+    }
+
+    return f;
+}
+
+bool canTravel(long long balance, long long fare) {
+
+    return fare >= 0 &&
+           balance >= fare &&
+           balance - fare >= 5000;
+}
+
+int main() {
+
+    vector<Test> tests = {
+
+        {"Inner Off-Peak", Zone::Inner, 12, 10000, 1000, true},
+
+        {"Inner Peak", Zone::Inner, 8, 10000, 1200, true},
+
+        {"Middle Off-Peak", Zone::Middle, 12, 10000, 2000, true},
+
+        {"Middle Peak", Zone::Middle, 17, 10000, 2400, true},
+
+        {"Outer Off-Peak", Zone::Outer, 12, 10000, 3000, true},
+
+        {"Outer Peak", Zone::Outer, 19, 10000, 3600, true},
+
+        {"Exactly Rs50 Left", Zone::Outer, 12, 8000, 3000, true},
+
+        {"Low Balance", Zone::Outer, 12, 7900, 3000, false},
+
+        {"10 AM Boundary", Zone::Inner, 10, 10000, 1000, true},
+
+        {"20 PM Boundary", Zone::Inner, 20, 10000, 1000, true}
+    };
+
+    int passed = 0;
+
+    cout << left << setw(24) << "Test"
+         << setw(15) << "Expected"
+         << setw(15) << "Actual"
+         << "Result" << endl;
+
+    for (const auto& t : tests) {
+
+        long long actualFare =
+            calculateFare(t.zone, t.hour);
+
+        bool actualAllowed =
+            canTravel(t.balance, actualFare);
+
+        bool result =
+            actualFare == t.expectedFare &&
+            actualAllowed == t.expectedAllowed;
+
+        if (result) {
+            passed++;
+        }
+
+        cout << left << setw(24) << t.name
+             << setw(15) << t.expectedFare
+             << setw(15) << actualFare
+             << (result ? "PASS" : "FAIL")
+             << endl;
+    }
+
+    cout << "\nPassed Tests: "
+         << passed << "/" << tests.size()
+         << endl;
+
+    // Invalid input examples
+
+    int zone = 9;
+
+    long long recharge = -100;
+
+    cout << "Unknown Zone Rejected: "
+         << boolalpha << !(zone >= 0 && zone <= 2)
+         << endl;
+
+    cout << "Negative Recharge Rejected: "
+         << (recharge < 0) << endl;
+
+    // Five journey calculation
+
+    long long total =
+        1000 + 2400 + 3000 + 1200 + 2000;
+
+    cout << "Five Journey Total: Rs "
+         << total / 100 << '.'
+         << setw(2) << setfill('0')
+         << total % 100 << endl;
+
+    return 0;
+}
