@@ -1,0 +1,63 @@
+#include <iostream>
+#include <string>
+using namespace std;
+enum class Zone {
+    Inner, Middle, Outer
+};
+class Passenger {
+public:
+    string passengerId;
+    string category;
+    Passenger(string id, string type) {
+        passengerId = id;
+        category = type;
+    }
+    void display() {
+        cout << "Passenger ID: " << passengerId << endl;
+        cout << "Category: " << category << endl;
+    }
+};
+class SmartCard {
+private:
+    long long balance;
+public:
+    SmartCard(long long amount) {
+        balance = amount;
+    }
+    bool canTravel(long long fare) {
+        return balance - fare >= 5000 && fare >= 0;
+    }
+    bool deduct(long long fare) {
+        if (canTravel(fare)) {
+            balance -= fare;
+            return true;
+        }
+        return false;
+    }
+    long long getBalance() {
+        return balance;
+    }
+};
+class FareTable {
+public:
+    static long long getFare(Zone z) {
+        switch (z) {
+            case Zone::Inner: return 1000;
+            case Zone::Middle: return 2000;
+            case Zone::Outer: return 3000;
+        }
+        return 0;
+    }
+};
+int main() {
+    Passenger p("P101", "Adult");
+    SmartCard card(10000);
+    p.display();
+    long long fare = FareTable::getFare(Zone::Outer);
+    bool result = card.deduct(fare);
+    cout << "Fare: Rs " << fare / 100.0 << endl;
+    cout << "Travel Allowed: " << boolalpha << result << endl;
+    cout << "Remaining Balance: Rs "
+         << card.getBalance() / 100.0 << endl;
+    return 0;
+}
