@@ -1,0 +1,63 @@
+#include <iostream>
+#include <iomanip>
+using namespace std;
+
+int main() {
+
+    const long long farePaise = 3600;
+
+    long long journeys[] = {
+        20000,
+        500000,
+        3000000
+    };
+
+    cout << "Journey Comparison\n";
+
+    cout << "Journeys\tInteger Total\tDouble Total\tDifference\n";
+
+    for (long long n : journeys) {
+
+        long long totalPaise = n * farePaise;
+
+        double doubleTotal = n * 36.0;
+
+        double integerTotal =
+            static_cast<double>(totalPaise) / 100.0;
+
+        cout << n << "\t\t"
+             << fixed << setprecision(2)
+             << integerTotal << "\t\t"
+             << doubleTotal << "\t\t"
+             << doubleTotal - integerTotal
+             << endl;
+    }
+
+    long long longTotal = 0;
+
+    double doubleTotal = 0.0;
+
+    for (int i = 0; i < 3000000; i++) {
+
+        longTotal += 3600LL;
+
+        doubleTotal += 36.0;
+    }
+
+    cout << "\nLong Long Total (paise): "
+         << longTotal << endl;
+
+    cout << "Double Total (rupees): "
+         << doubleTotal << endl;
+
+    cout << "Size of int: "
+         << sizeof(int) << endl;
+
+    cout << "Size of long long: "
+         << sizeof(long long) << endl;
+
+    cout << "Size of double: "
+         << sizeof(double) << endl;
+
+    return 0;
+}
