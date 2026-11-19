@@ -1,0 +1,176 @@
+#include <iostream>
+#include <string>
+#include <vector>
+#include <stdexcept>
+using namespace std;
+
+class Time {
+private:
+    int h, m, s;
+
+public:
+    Time(int hh = 0, int mm = 0, int ss = 0)
+        : h(hh), m(mm), s(ss) {
+
+        if (hh < 0 || mm < 0 || mm >= 60 ||
+            ss < 0 || ss >= 60) {
+            throw invalid_argument("Invalid time");
+        }
+    }
+
+    Time& operator++() {
+        s++;
+
+        if (s == 60) {
+            s = 0;
+            m++;
+        }
+
+        if (m == 60) {
+            m = 0;
+            h++;
+        }
+
+        return *this;
+    }
+
+    Time operator++(int) {
+        Time old = *this;
+        ++(*this);
+        return old;
+    }
+
+    bool operator==(const Time& other) const {
+        return h == other.h &&
+               m == other.m &&
+               s == other.s;
+    }
+
+    bool operator<(const Time& other) const {
+        if (h != other.h) return h < other.h;
+        if (m != other.m) return m < other.m;
+        return s < other.s;
+    }
+
+    void display() const {
+        cout << h << ":"
+             << m << ":"
+             << s << endl;
+    }
+};
+
+class Playlist {
+private:
+    vector<string> tracks;
+
+public:
+    void addTrack(const string& name) {
+        tracks.push_back(name);
+    }
+
+    string& operator[](int index) {
+        if (index < 0 ||
+            index >= static_cast<int>(tracks.size())) {
+            throw out_of_range("Invalid playlist index");
+        }
+
+        return tracks[index];
+    }
+
+    const string& operator[](int index) const {
+        if (index < 0 ||
+            index >= static_cast<int>(tracks.size())) {
+            throw out_of_range("Invalid playlist index");
+        }
+
+        return tracks[index];
+    }
+
+    int size() const {
+        return static_cast<int>(tracks.size());
+    }
+};
+
+struct Counter {
+    int v;
+
+    Counter& operator++() {
+        ++v;
+        return *this;
+    }
+
+    Counter operator++(int) {
+        Counter old = *this;
+        ++v;
+        return old;
+    }
+};
+
+int main() {
+
+    Counter c{5};
+
+    Counter a = c++;
+
+    Counter b = ++c;
+
+    cout << a.v << " "
+         << b.v << " "
+         << c.v << endl;
+
+    Time t(10, 30, 59);
+
+    Time old = t++;
+
+    Time current = ++t;
+
+    cout << "Postfix Value: ";
+    old.display();
+
+    cout << "Prefix Value: ";
+    current.display();
+
+    Time rollover(0, 59, 59);
+
+    ++rollover;
+
+    cout << "Time Rollover: ";
+    rollover.display();
+
+    Playlist playlist;
+
+    playlist.addTrack("Song One");
+    playlist.addTrack("Song Two");
+    playlist.addTrack("Song Three");
+
+    cout << "Playlist:" << endl;
+
+    for (int i = 0; i < playlist.size(); i++) {
+        cout << playlist[i] << endl;
+    }
+
+    playlist[1] = "Updated Song";
+
+    cout << "Updated Track: "
+         << playlist[1] << endl;
+
+    cout << boolalpha;
+
+    Time t1(10, 30, 0);
+    Time t2(11, 30, 0);
+
+    cout << "Time Comparison: "
+         << (t1 < t2) << endl;
+
+    cout << "Equality: "
+         << (t1 == t2) << endl;
+
+    try {
+        cout << playlist[-1] << endl;
+    }
+    catch (const out_of_range& e) {
+        cout << "Error: " << e.what() << endl;
+    }
+
+    return 0;
+}
