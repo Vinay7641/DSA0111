@@ -1,0 +1,111 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+class SavingsAccount {
+
+private:
+    int accountNumber;
+    double balance;
+
+    double transactions[10];
+    int count;
+
+public:
+
+    SavingsAccount(int accNo, double amount) {
+
+        accountNumber = accNo;
+        balance = amount;
+        count = 0;
+    }
+
+    // Deposit function
+    void deposit(double amount) {
+
+        if (amount <= 0) {
+            cout << "Invalid deposit" << endl;
+            return;
+        }
+
+        balance += amount;
+        addTransaction(amount);
+    }
+
+    // Withdraw function
+    void withdraw(double amount) {
+
+        if (amount <= 0 || amount > balance) {
+            cout << "Invalid withdrawal" << endl;
+            return;
+        }
+
+        balance -= amount;
+        addTransaction(-amount);
+    }
+
+    // Add transaction to array
+    void addTransaction(double amount) {
+
+        if (count < 10) {
+
+            transactions[count] = amount;
+            count++;
+
+        } else {
+
+            for (int i = 0; i < 9; i++) {
+                transactions[i] = transactions[i + 1];
+            }
+
+            transactions[9] = amount;
+        }
+    }
+
+    // Display mini statement
+    void miniStatement();
+
+    void displayBalance() {
+
+        cout << "Account Number: "
+             << accountNumber << endl;
+
+        cout << "Current Balance: Rs "
+             << balance << endl;
+    }
+};
+
+// Member function outside class
+void SavingsAccount::miniStatement() {
+
+    cout << "\n----- MINI STATEMENT -----" << endl;
+
+    for (int i = 0; i < count; i++) {
+
+        if (transactions[i] >= 0) {
+            cout << "Deposit: Rs ";
+        } else {
+            cout << "Withdrawal: Rs ";
+        }
+
+        cout << (transactions[i] >= 0
+                 ? transactions[i]
+                 : -transactions[i]) << endl;
+    }
+}
+
+int main() {
+
+    SavingsAccount account(1001, 5000);
+
+    account.deposit(1000);
+    account.withdraw(500);
+    account.deposit(2000);
+    account.withdraw(300);
+
+    account.displayBalance();
+
+    account.miniStatement();
+
+    return 0;
+}
