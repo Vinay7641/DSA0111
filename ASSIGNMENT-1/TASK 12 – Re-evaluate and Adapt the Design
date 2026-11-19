@@ -1,0 +1,219 @@
+#include <iostream>
+#include <array>
+using namespace std;
+
+enum class Zone {
+    Inner, Middle, Outer, Airport, Count
+};
+
+enum class PassengerType {
+    Adult, Student, Senior
+};
+
+constexpr array<long long, 4> BASE_FARE = {
+    1000, 2000, 3000, 6000
+};
+
+constexpr int PEAK_PERCENT = 20;
+
+constexpr int WEEKEND_DISCOUNT = 10;
+
+constexpr int CONCESSION_PERCENT = 10;
+
+constexpr long long MIN_BALANCE = 5000;
+
+// Monthly Pass Class
+
+class MonthlyPass {
+
+private:
+    bool active;
+
+    array<bool, 4> covered{};
+
+public:
+
+    MonthlyPass(bool status, Zone z1, Zone z2) {
+
+        active = status;
+
+        covered[static_cast<int>(z1)] = true;
+
+        covered[static_cast<int>(z2)] = true;
+    }
+
+    bool covers(Zone z) const {
+
+        return active &&
+               covered[static_cast<int>(z)];
+    }
+};
+
+// Smart Card Class
+
+class SmartCard {
+
+private:
+    long long balance;
+
+public:
+
+    SmartCard(long long amount) {
+        balance = amount;
+    }
+
+    bool canTravel(long long fare) const {
+
+        return fare >= 0 &&
+               balance >= fare &&
+               balance - fare >= MIN_BALANCE;
+    }
+
+    bool deduct(long long fare) {
+
+        if (canTravel(fare)) {
+
+            balance -= fare;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    long long getBalance() const {
+        return balance;
+    }
+};
+
+// Fare Calculation
+
+long long calculateFare(
+    Zone zone,
+    int hour,
+    bool weekend,
+    PassengerType passenger,
+    const MonthlyPass& pass
+) {
+
+    int index = static_cast<int>(zone);
+
+    if (index < 0 || index >= static_cast<int>(BASE_FARE.size())) {
+        return -1;
+    }
+
+    if (hour < 0 || hour > 23) {
+        return -1;
+    }
+
+    if (pass.covers(zone)) {
+        return 0;
+    }
+
+    long long fare = BASE_FARE[index];
+
+    bool peak =
+        (hour >= 8 && hour < 10) ||
+        (hour >= 17 && hour < 20);
+
+    // Weekend discount takes priority over peak surcharge.
+
+    if (weekend) {
+
+        fare = fare * (100 - WEEKEND_DISCOUNT) / 100;
+
+    } else if (peak) {
+
+        fare = fare * (100 + PEAK_PERCENT) / 100;
+    }
+
+    // Student and senior citizen concession.
+
+    if (passenger == PassengerType::Student ||
+        passenger == PassengerType::Senior) {
+
+        fare = fare * (100 - CONCESSION_PERCENT) / 100;
+    }
+
+    return fare;
+}
+
+int main() {
+
+    SmartCard card(30000);
+
+    // Monthly pass covers Inner and Middle zones.
+
+    MonthlyPass pass(true, Zone::Inner, Zone::Middle);
+
+    struct Journey {
+        Zone zone;
+        int hour;
+        bool weekend;
+        PassengerType passenger;
+        const char* description;
+    };
+
+    Journey journeys[] = {
+
+        {
+            Zone::Airport, 9, false,
+            PassengerType::Adult,
+            "Airport Peak Weekday"
+        },
+
+        {
+            Zone::Outer, 18, true,
+            PassengerType::Adult,
+            "Outer Weekend"
+        },
+
+        {
+            Zone::Inner, 12, false,
+            PassengerType::Adult,
+            "Inner Monthly Pass"
+        },
+
+        {
+            Zone::Airport, 12, false,
+            PassengerType::Student,
+            "Airport Student"
+        }
+    };
+
+    for (const auto& j : journeys) {
+
+        long long fare = calculateFare(
+            j.zone,
+            j.hour,
+            j.weekend,
+            j.passenger,
+            pass
+        );
+
+        bool accepted;
+
+        if (fare == 0) {
+            accepted = true;
+        } else {
+            accepted = card.deduct(fare);
+        }
+
+        cout << j.description << endl;
+
+        cout << "Fare: "
+             << fare << " paise" << endl;
+
+        cout << "Status: "
+             << (accepted ? "Accepted" : "Denied")
+             << endl;
+
+        cout << "Balance: "
+             << card.getBalance()
+             << " paise" << endl;
+
+        cout << "------------------------" << endl;
+    }
+
+    return 0;
+}
