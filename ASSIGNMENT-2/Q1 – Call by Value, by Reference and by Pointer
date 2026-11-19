@@ -1,0 +1,70 @@
+#include <iostream>
+using namespace std;
+
+// Call by Value
+void changeByValue(int a) {
+    a += 10;
+}
+
+// Call by Reference
+void changeByReference(int& b) {
+    b += 10;
+}
+
+// Call by Pointer
+void changeByPointer(int* c) {
+    *c += 10;
+}
+
+// Return by Reference
+int& bigger(int& p, int& q) {
+    return p > q ? p : q;
+}
+
+// Default Arguments
+void show(int x, int y = 5, int z = 10) {
+    cout << x + y + z << " ";
+}
+
+void applyByValue(long long fee, int percent) {
+    fee -= fee * percent / 100;
+}
+
+void applyConcession(long long& fee, int percent) {
+    fee -= fee * percent / 100;
+}
+
+int main() {
+
+    int a = 1, b = 2, c = 3;
+
+    changeByValue(a);
+    changeByReference(b);
+    changeByPointer(&c);
+
+    cout << a << " " << b << " " << c << endl;
+
+    bigger(a, c) = 100;
+
+    cout << a << " " << c << endl;
+
+    show(1);
+    show(1, 2);
+    show(1, 2, 3);
+
+    cout << endl;
+
+    long long hostelFee = 45000;
+
+    applyByValue(hostelFee, 10);
+
+    cout << "after call by value : "
+         << hostelFee << endl;
+
+    applyConcession(hostelFee, 10);
+
+    cout << "after call by reference: "
+         << hostelFee << endl;
+
+    return 0;
+}
