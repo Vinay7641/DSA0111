@@ -1,0 +1,79 @@
+#include <iostream>
+using namespace std;
+
+class TransactionHistory {
+
+private:
+
+    static const int SIZE = 10;
+
+    double transactions[SIZE];
+
+    int start;
+    int count;
+
+public:
+
+    TransactionHistory() {
+
+        start = 0;
+        count = 0;
+    }
+
+    // Add transaction using circular array
+    void addTransaction(double amount) {
+
+        if (count < SIZE) {
+
+            int index = (start + count) % SIZE;
+
+            transactions[index] = amount;
+
+            count++;
+
+        } else {
+
+            transactions[start] = amount;
+
+            start = (start + 1) % SIZE;
+        }
+    }
+
+    // Display transactions
+    void display() const {
+
+        cout << "\nTransaction History" << endl;
+
+        for (int i = 0; i < count; i++) {
+
+            int index = (start + i) % SIZE;
+
+            cout << transactions[index] << endl;
+        }
+    }
+
+    // Display number of transactions
+    int getCount() const {
+
+        return count;
+    }
+};
+
+int main() {
+
+    TransactionHistory history;
+
+    // Insert 15 transactions
+
+    for (int i = 1; i <= 15; i++) {
+
+        history.addTransaction(i * 100);
+    }
+
+    cout << "Total Stored Transactions: "
+         << history.getCount() << endl;
+
+    history.display();
+
+    return 0;
+}
