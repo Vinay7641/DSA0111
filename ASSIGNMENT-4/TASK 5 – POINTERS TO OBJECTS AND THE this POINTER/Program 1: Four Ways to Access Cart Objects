@@ -1,0 +1,98 @@
+
+#include <iostream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+class Cart {
+    string items[10];
+    double prices[10];
+    int n = 0;
+    double discount = 0;
+
+public:
+    Cart& add(const string& item, double price) {
+        if (n < 10) {
+            items[n] = item;
+            prices[n] = price;
+            n++;
+        }
+
+        return *this;
+    }
+
+    Cart& setDiscount(double discount) {
+        this->discount = discount;
+        return *this;
+    }
+
+    double total() const {
+        double sum = 0;
+
+        for (int i = 0; i < n; i++) {
+            sum += prices[i];
+        }
+
+        return sum * (100 - discount) / 100;
+    }
+
+    void display() const {
+        for (int i = 0; i < n; i++) {
+            cout << items[i] << ": " << prices[i] << '\n';
+        }
+
+        cout << "Total: " << total() << '\n';
+    }
+};
+
+int main() {
+    cout << fixed << setprecision(2);
+
+    Cart c1;
+
+    c1.add("Rice", 60)
+      .add("Dal", 120)
+      .setDiscount(10);
+
+    cout << "Direct Object Access\n";
+    c1.display();
+
+    Cart* p = &c1;
+
+    p->add("Oil", 180);
+
+    cout << "\nPointer Access\n";
+    p->display();
+
+    Cart& ref = c1;
+
+    ref.add("Sugar", 40);
+
+    cout << "\nReference Access\n";
+    ref.display();
+
+    Cart* dynamicCart = new Cart;
+
+    dynamicCart->add("Milk", 50)
+               .add("Bread", 30);
+
+    cout << "\nDynamic Object Access\n";
+    dynamicCart->display();
+
+    Cart* carts[2] = {&c1, dynamicCart};
+
+    Cart* highest = carts[0];
+
+    for (int i = 1; i < 2; i++) {
+        if (carts[i]->total() > highest->total()) {
+            highest = carts[i];
+        }
+    }
+
+    cout << "\nHighest Cart Total: "
+         << highest->total() << '\n';
+
+    delete dynamicCart;
+
+    return 0;
+}
