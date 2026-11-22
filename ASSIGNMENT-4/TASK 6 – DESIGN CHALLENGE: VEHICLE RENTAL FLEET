@@ -1,0 +1,364 @@
+
+#include <iostream>
+#include <string>
+#include <iomanip>
+using namespace std;
+
+class Vehicle {
+protected:
+    string registrationNo;
+    double dailyRate;
+    bool rented;
+
+public:
+    Vehicle(string reg, double rate)
+        : registrationNo(reg), dailyRate(rate), rented(false) {}
+
+    virtual double charge(int days) const = 0;
+
+    virtual string type() const = 0;
+
+    string getRegistration() const {
+        return registrationNo;
+    }
+
+    void rent() {
+        if (rented) {
+            cout << registrationNo << " is already rented\n";
+        } else {
+            rented = true;
+            cout << registrationNo << " rented successfully\n";
+        }
+    }
+
+    void returnVehicle(int days, int lateDays) {
+        if (!rented) {
+            cout << registrationNo << " is not rented\n";
+            return;
+        }
+
+        if (days <= 0 || lateDays < 0) {
+            cout << "Invalid rental duration\n";
+            return;
+        }
+
+        double rentalCharge = charge(days);
+        double lateCharge = lateDays * dailyRate * 1.5;
+        double total = rentalCharge + lateCharge;
+
+        cout << registrationNo << " returned successfully\n";
+        cout << "Vehicle Type: " << type() << '\n';
+        cout << "Rental Charge: " << rentalCharge << '\n';
+        cout << "Late Charge: " << lateCharge << '\n';
+        cout << "Total Charge: " << total << '\n';
+
+        rented = false;
+    }
+
+    virtual void display() const {
+        cout << registrationNo
+             << " | " << type()
+             << " | Daily Rate: " << dailyRate
+             << " | Status: "
+             << (rented ? "Rented" : "Available")
+             << '\n';
+    }
+
+    virtual ~Vehicle() = default;
+};
+
+class MotorVehicle : public Vehicle {
+protected:
+    double fuelOrChargeLevel;
+    string serviceDueDate;
+
+public:
+    MotorVehicle(string reg, double rate,
+                 double level, string date)
+        : Vehicle(reg, rate),
+          fuelOrChargeLevel(level),
+          serviceDueDate(date) {}
+
+    void display() const override {
+        Vehicle::display();
+
+        cout << "Fuel/Charge Level: "
+             << fuelOrChargeLevel << '\n';
+
+        cout << "Service Due Date: "
+             << serviceDueDate << '\n';
+    }
+};
+
+class Bicycle : public Vehicle {
+public:
+    Bicycle(string reg, double rate)
+        : Vehicle(reg, rate) {}
+
+    double charge(int days) const override {
+        return dailyRate * days;
+    }
+
+    string type() const override {
+        return "Bicycle";
+    }
+};
+
+class TwoWheeler : public MotorVehicle {
+    double fuelUsed;
+    double pricePerLitre;
+
+public:
+    TwoWheeler(string reg, double rate,
+               double level, string date,
+               double fuel, double price)
+        : MotorVehicle(reg, rate, level, date),
+          fuelUsed(fuel),
+          pricePerLitre(price) {}
+
+    double charge(int days) const override {
+        return dailyRate * days
+             + fuelUsed * pricePerLitre + 50;
+    }
+
+    string type() const override {
+        return "Two Wheeler";
+    }
+};
+
+class Car : public MotorVehicle {
+protected:
+    int seatingCapacity;
+    double fuelUsed;
+    double pricePerLitre;
+
+public:
+    Car(string reg, double rate, double level,
+        string date, int seats,
+        double fuel, double price)
+        : MotorVehicle(reg, rate, level, date),
+          seatingCapacity(seats),
+          fuelUsed(fuel),
+          pricePerLitre(price) {}
+
+    double charge(int days) const override {
+        return dailyRate * days
+             + fuelUsed * pricePerLitre
+             + seatingCapacity * 20;
+    }
+
+    string type() const override {
+        return "Car";
+    }
+
+    void display() const override {
+        MotorVehicle::display();
+        cout << "Seating Capacity: "
+             << seatingCapacity << '\n';
+    }
+};
+
+class ElectricCar : public Car {
+    double batteryCapacity;
+    double energyUsed;
+    double pricePerKWh;
+
+public:
+    ElectricCar(string reg, double rate, double level,
+                string date, int seats,
+                double battery, double energy, double price)
+        : Car(reg, rate, level, date, seats, 0, 0),
+          batteryCapacity(battery),
+          energyUsed(energy),
+          pricePerKWh(price) {}
+
+    double charge(int days) const override {
+        return dailyRate * days
+             + energyUsed * pricePerKWh;
+    }
+
+    string type() const override {
+        return "Electric Car";
+    }
+
+    void display() const override {
+        Car::display();
+        cout << "Battery Capacity: "
+             << batteryCapacity << " kWh\n";
+    }
+};
+
+class ElectricBus : public MotorVehicle {
+    double batteryCapacity;
+    double energyUsed;
+    double pricePerKWh;
+
+public:
+    ElectricBus(string reg, double rate, double level,
+                string date, double battery,
+                double energy, double price)
+        : MotorVehicle(reg, rate, level, date),
+          batteryCapacity(battery),
+          energyUsed(energy),
+          pricePerKWh(price) {}
+
+    double charge(int days) const override {
+        return dailyRate * days
+             + energyUsed * pricePerKWh;
+    }
+
+    string type() const override {
+        return "Electric Bus";
+    }
+
+    void display() const override {
+        MotorVehicle::display();
+
+        cout << "Battery Capacity: "
+             << batteryCapacity << " kWh\n";
+    }
+};
+
+class Fleet {
+    Vehicle* vehicles[10];
+    int count;
+
+public:
+    Fleet() : count(0) {}
+
+    Fleet(const Fleet&) = delete;
+    Fleet& operator=(const Fleet&) = delete;
+
+    void addVehicle(Vehicle* vehicle) {
+        if (count < 10) {
+            vehicles[count] = vehicle;
+            count++;
+            cout << vehicle->getRegistration()
+                 << " added to fleet\n";
+        } else {
+            cout << "Fleet is full\n";
+            delete vehicle;
+        }
+    }
+
+    Vehicle* findVehicle(const string& reg) const {
+        for (int i = 0; i < count; i++) {
+            if (vehicles[i]->getRegistration() == reg) {
+                return vehicles[i];
+            }
+        }
+
+        return nullptr;
+    }
+
+    void listVehicles() const {
+        cout << "\nVEHICLE FLEET\n";
+
+        for (int i = 0; i < count; i++) {
+            vehicles[i]->display();
+            cout << '\n';
+        }
+    }
+
+    void rentVehicle(const string& reg) {
+        Vehicle* vehicle = findVehicle(reg);
+
+        if (vehicle == nullptr) {
+            cout << "Vehicle not found\n";
+        } else {
+            vehicle->rent();
+        }
+    }
+
+    void returnVehicle(const string& reg,
+                       int days, int lateDays) {
+        Vehicle* vehicle = findVehicle(reg);
+
+        if (vehicle == nullptr) {
+            cout << "Vehicle not found\n";
+        } else {
+            vehicle->returnVehicle(days, lateDays);
+        }
+    }
+
+    ~Fleet() {
+        for (int i = 0; i < count; i++) {
+            delete vehicles[i];
+        }
+    }
+};
+
+int main() {
+    cout << fixed << setprecision(2);
+
+    Fleet fleet;
+
+    fleet.addVehicle(
+        new Bicycle("BIKE101", 100)
+    );
+
+    fleet.addVehicle(
+        new TwoWheeler(
+            "TWO201", 300, 80,
+            "2026-12-01", 2, 100
+        )
+    );
+
+    fleet.addVehicle(
+        new Car(
+            "CAR301", 1000, 60,
+            "2026-12-10", 5, 5, 100
+        )
+    );
+
+    fleet.addVehicle(
+        new ElectricCar(
+            "EV401", 1500, 90,
+            "2026-12-15", 5, 50, 20, 8
+        )
+    );
+
+    fleet.addVehicle(
+        new ElectricBus(
+            "BUS501", 3000, 85,
+            "2026-12-20", 100, 40, 10
+        )
+    );
+
+    fleet.listVehicles();
+
+    cout << "\nRENTING VEHICLES\n";
+
+    fleet.rentVehicle("BIKE101");
+    fleet.rentVehicle("TWO201");
+    fleet.rentVehicle("CAR301");
+    fleet.rentVehicle("EV401");
+    fleet.rentVehicle("BUS501");
+
+    cout << "\nDUPLICATE RENTAL TEST\n";
+
+    fleet.rentVehicle("CAR301");
+
+    cout << "\nRETURNING VEHICLES\n";
+
+    fleet.returnVehicle("BIKE101", 2, 1);
+    cout << '\n';
+
+    fleet.returnVehicle("TWO201", 2, 1);
+    cout << '\n';
+
+    fleet.returnVehicle("CAR301", 2, 1);
+    cout << '\n';
+
+    fleet.returnVehicle("EV401", 2, 1);
+    cout << '\n';
+
+    fleet.returnVehicle("BUS501", 2, 1);
+    cout << '\n';
+
+    cout << "FINAL FLEET STATUS\n";
+
+    fleet.listVehicles();
+
+    return 0;
+}
