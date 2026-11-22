@@ -1,0 +1,49 @@
+
+#include <iostream>
+#include <vector>
+#include <memory>
+using namespace std;
+
+class Account {
+public:
+    virtual double rate() const {
+        return 3.5;
+    }
+
+    virtual ~Account() {
+        cout << "Account Destructor\n";
+    }
+};
+
+class SeniorAccount : public Account {
+    unique_ptr<double[]> history;
+
+public:
+    SeniorAccount()
+        : history(make_unique<double[]>(100)) {}
+
+    double rate() const override {
+        return 4.0;
+    }
+
+    ~SeniorAccount() override {
+        cout << "SeniorAccount Destructor\n";
+    }
+};
+
+int main() {
+    vector<unique_ptr<Account>> accounts;
+
+    accounts.push_back(make_unique<Account>());
+    accounts.push_back(make_unique<SeniorAccount>());
+
+    cout << "Account Interest Rates\n";
+
+    for (const auto& a : accounts) {
+        cout << a->rate() << endl;
+    }
+
+    cout << "Deleting Accounts\n";
+
+    return 0;
+}
