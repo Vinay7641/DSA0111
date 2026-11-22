@@ -1,0 +1,223 @@
+#include <chrono>
+#include <iostream>
+#include <stdexcept>
+#include <variant>
+#include <vector>
+using namespace std;
+
+using Clock = chrono::steady_clock;
+
+struct Base {
+    virtual ~Base() = default;
+    virtual double total() const = 0;
+};
+
+struct VOP : Base {
+    double total() const override {
+        return 1700;
+    }
+};
+
+struct VIP : Base {
+    double total() const override {
+        return 47500;
+    }
+};
+
+struct SwitchBill {
+    int type;
+
+    double total() const {
+        switch (type) {
+            case 0: return 1700;
+            case 1: return 47500;
+            default: return 0;
+        }
+    }
+};
+
+struct OP {
+    double total() const {
+        return 1700;
+    }
+};
+
+struct IP {
+    double total() const {
+        return 47500;
+    }
+};
+
+using VB = variant<OP, IP>;
+
+template<class F>
+double timeMs(F f) {
+    auto s = Clock::now();
+
+    volatile double result = f();
+
+    auto e = Clock::now();
+
+    if (result < 0)
+        cout << "";
+
+    return chrono::duration<double, milli>(e - s).count();
+}
+
+int main() {
+    VOP op;
+    VIP ip;
+
+    vector<Base*> smallV;
+    vector<SwitchBill> smallS;
+    vector<VB> smallVar;
+
+    for (int i = 0; i < 10; ++i) {
+        if (i % 2 == 0) {
+            smallV.push_back(&op);
+            smallS.push_back({0});
+            smallVar.emplace_back(OP{});
+        }
+        else {
+            smallV.push_back(&ip);
+            smallS.push_back({1});
+            smallVar.emplace_back(IP{});
+        }
+    }
+
+    double a = 0, b = 0, c = 0;
+
+    for (auto* x : smallV)
+        a += x->total();
+
+    for (auto x : smallS)
+        b += x.total();
+
+    for (auto& x : smallVar)
+        c += visit([](const auto& v) {
+            return v.total();
+        }, x);
+
+    cout << "10 bills: virtual=" << a
+         << " switch=" << b
+         << " variant=" << c << '\n';
+
+    for (size_t n : {1000ULL, 1000000ULL, 10000000ULL}) {
+        vector<Base*> v;
+        vector<SwitchBill> s;
+
+        v.reserve(n);
+        s.reserve(n);
+
+        for (size_t i = 0; i < n; ++i) {
+            v.push_back(i % 2
+                ? static_cast<Base*>(&ip)
+                : static_cast<Base*>(&op));
+
+            s.push_back({static_cast<int>(i % 2)});
+        }
+
+        double vsum = 0, ssum = 0;
+
+        double vt = timeMs([&] {
+            double z = 0;
+
+            for (auto* x : v)
+                z += x->total();
+
+            vsum = z;
+            return z;
+        });
+
+        double st = timeMs([&] {
+            double z = 0;
+
+            for (auto x : s)
+                z += x.total();
+
+            ssum = z;
+            return z;
+        });
+
+        cout << "n=" << n
+             << " virtual_total=" << vsum
+             << " virtual_ms=" << vt
+             << " switch_total=" << ssum
+             << " switch_ms=" << st << '\n';
+    }
+
+    vector<VB> variants;
+    variants.reserve(10000000);
+
+    for (int i = 0; i < 10000000; ++i) {
+        if (i % 2)
+            variants.emplace_back(IP{});
+        else
+            variants.emplace_back(OP{});
+    }
+
+    double vtotal = 0;
+
+    double vtime = timeMs([&] {
+        double z = 0;
+
+        for (const auto& x : variants) {
+            z += visit([](const auto& q) {
+                return q.total();
+            }, x);
+        }
+
+        vtotal = z;
+        return z;
+    });
+
+    cout << "variant_total=" << vtotal
+         << " variant_ms=" << vtime << '\n';
+
+    const size_t count = 1000000;
+
+    for (int pct : {0, 1, 50}) {
+        vector<double> values(count, 1000);
+
+        size_t invalid = count * static_cast<size_t>(pct) / 100;
+
+        for (size_t i = 0; i < invalid; ++i)
+            values[i] = -1;
+
+        size_t rc = 0, ec = 0;
+
+        double rt = timeMs([&] {
+            size_t errors = 0;
+
+            for (double x : values) {
+                if (x < 0)
+                    ++errors;
+            }
+
+            rc = errors;
+            return static_cast<double>(errors);
+        });
+
+        double et = timeMs([&] {
+            size_t errors = 0;
+
+            for (double x : values) {
+                try {
+                    if (x < 0)
+                        throw invalid_argument("negative");
+                }
+                catch (const invalid_argument&) {
+                    ++errors;
+                }
+            }
+
+            ec = errors;
+            return static_cast<double>(errors);
+        });
+
+        cout << pct << "% invalid: return_errors=" << rc
+             << " return_ms=" << rt
+             << " exception_errors=" << ec
+             << " exception_ms=" << et << '\n';
+    }
+}
